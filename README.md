@@ -1,0 +1,1 @@
+# manju-generator0
