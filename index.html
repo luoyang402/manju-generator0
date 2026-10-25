@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>漫剧AI生成器</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
+body{background:#f7f8fa;padding:16px;}
+.title{text-align:center;font-size:22px;font-weight:bold;margin-bottom:16px;}
+textarea{width:100%;min-height:220px;padding:12px;border-radius:10px;border:none;font-size:16px;}
+button{width:100%;margin:14px 0;padding:14px;border:none;border-radius:10px;font-size:16px;color:#fff}
+#btnGen{background:#2979ff;}
+#btnCopy{background:#00b42a;}
+.box{background:#fff;padding:14px;border-radius:10px;margin-top:12px;white-space:pre-line;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="title">漫剧AI生成器</div>
+<textarea id="txt" placeholder="粘贴小说原文..."></textarea>
+<button id="btnGen">一键生成漫剧文案+分镜</button>
+<div id="resBox" class="box" style="display:none"></div>
+<button id="btnCopy" style="display:none">复制结果</button>
+
+<script>
+// =========部署成功后，把Vercel给你的域名填在这里=========
+const apiUrl = "https://xxx.vercel.app/api/generate";
+const txt = document.getElementById('txt');
+const btnGen = document.getElementById('btnGen');
+const resBox = document.getElementById('resBox');
+const btnCopy = document.getElementById('btnCopy');
+
+btnGen.onclick = async ()=>{
+  const content = txt.value.trim();
+  if(!content){alert("请粘贴小说内容");return;}
+  btnGen.disabled=true;
+  btnGen.innerText="生成中...";
+  resBox.style.display="none";
+  btnCopy.style.display="none";
+  try{
+    const r = await fetch(apiUrl,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({content})
+    })
+    const d = await r.json();
+    if(d.code===200){
+      resBox.innerText = d.data;
+      resBox.style.display="block";
+      btnCopy.style.display="block";
+    }else{
+      alert(d.msg || "生成失败");
+    }
+  }catch(e){
+    alert("请求失败，检查接口地址");
+    console.log(e);
+  }
+  btnGen.disabled=false;
+  btnGen.innerText="一键生成漫剧文案+分镜";
+}
+btnCopy.onclick = async ()=>{
+  await navigator.clipboard.writeText(resBox.innerText);
+  alert("已复制");
+}
+</script>
+</body>
+</html>
